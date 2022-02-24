@@ -53,8 +53,8 @@ public class Main extends JavaPlugin implements Listener {
 	public Map <String, Location> PortalEnd = new HashMap<>();
 	
 	public static ArrayList<String> Frozen = new ArrayList<>();
-	public Map <Player, Location> FrozenLocs = new HashMap<>();
-	public Map <Player, Integer> FrozenAir = new HashMap<>();
+	public static Map <Player, Location> FrozenLocs = new HashMap<>();
+	public static Map <Player, Integer> FrozenAir = new HashMap<>();
 
 	public File configsDirectory;
 	public File mainConfigDirectory;
@@ -86,6 +86,10 @@ public class Main extends JavaPlugin implements Listener {
 		//healTests();
 	}
 	
+	public void logCastEx(String currentKey) {
+		log("Wrong value type for \"" + currentKey + "\" in the config");
+	}
+	
 	public void loadConfig() {
 		File f = new File(mainConfigDirectory, "mainconfig.yml");
 		f.getParentFile().mkdirs();
@@ -94,20 +98,40 @@ public class Main extends JavaPlugin implements Listener {
 		YamlConfiguration cOld = YamlConfiguration.loadConfiguration(f);
 		String currentKey = null;
 
-		/*try {
+		try {
 			currentKey = "launch-server-file-name";
 			if (c.get(currentKey) == null) {
 				c.set(currentKey, "Run.bat");
+			} //else {
+//				try {
+//					String launchServerFileName = (String) c.get(currentKey);
+//				} catch (ClassCastException e) {
+//
+//				}
+//			}
+			currentKey = "allow-gm-command-for-ops";
+			if (c.get(currentKey) == null) {
+				c.set(currentKey, true);
 			} else {
 				try {
-					launchServerFileName = (String) c.get(currentKey);
+					ConfigData.allowGmCommandForOps = (boolean) c.get(currentKey);
 				} catch (ClassCastException e) {
-
+					logCastEx(currentKey);
+				}
+			}
+			currentKey = "allow-heal-command-for-ops";
+			if (c.get(currentKey) == null) {
+				c.set(currentKey, true);
+			} else {
+				try {
+					ConfigData.allowGmCommandForOps = (boolean) c.get(currentKey);
+				} catch (ClassCastException e) {
+					logCastEx(currentKey);
 				}
 			}
 		} catch (Throwable t) {
 			log("Error while reading \"" + currentKey + "\" from the config");
-		}*/
+		}
 		
 		// DONE
 		
@@ -173,7 +197,7 @@ public class Main extends JavaPlugin implements Listener {
 				return true;
 			}
 			if(!p.getWorld().getEnvironment().equals(Environment.NORMAL)) {
-				p.sendMessage(ChatColor.RED + "You must be in the overworld to use this command.");
+				p.sendMessage(ChatColor.RED + "You must be in the overworld to use this command. (There would be problems with missing portal location. Later this will be avaliable)");
 				return true;
 			}
 			if(!Speedrunners.contains(pName)) {
@@ -437,6 +461,10 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	public void GmCommand(CommandSender sender, String[] args) {
+		if(!ConfigData.allowGmCommandForOps) {
+			sender.sendMessage(ChatColor.RED + "This command was disabled in the config.");
+			return;
+		}
 		Player p = getServer().getPlayerExact(sender.getName());
 		if(p.isOp() == true){
 			if(args.length == 0){
@@ -548,6 +576,12 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	public void HealCommand(Player p, String pName, String[] args) {
+		if(!ConfigData.allowHealCommandForOps) {
+			if(p!=null) {
+				p.sendMessage(ChatColor.RED + "This command was disabled in the config.");
+			}
+			return;
+		}
 		if(pName==null) {
 			pName = p.getName();
 		}
@@ -981,31 +1015,6 @@ public class Main extends JavaPlugin implements Listener {
         //p.spawnParticle(Particle.BLOCK_CRACK, new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ()), 100, blood.createBlockData());
         return null;
 	}
-	
-	@EventHandler
-	public void EntityAirChangeEvent(EntityAirChangeEvent e) {
-		if(e.getEntity() instanceof Player) {
-			Player p = (Player) e.getEntity();
-			if(Frozen.contains(((Player) e.getEntity()).getName())) {
-				if(!FrozenAir.containsKey(p)) FrozenAir.put(p, p.getRemainingAir());
-				if(e.getAmount()<FrozenAir.get(p)) {
-					//e.setAmount(-300);
-					e.setAmount(FrozenAir.get(p));
-				}
-			}
-		}
-	}
-	
-	//DESABLED DUE TO 1.18 REMOVED IT
-	/*@EventHandler
-	public void EEntityDismount(EntityDismountEvent e) {
-		if(e.getEntity() instanceof Player) {
-			//log.info("EntityDismountEvent");
-			if(Frozen.contains(((Player) e.getEntity()).getName())){
-				e.setCancelled(true);
-			}
-		}
-	}*/
 	
 	public void resetWorld(CommandSender sender) {
 		if(sender instanceof ConsoleCommandSender || (sender instanceof Player && ((Player) sender).isOp())) {

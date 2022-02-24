@@ -1,6 +1,7 @@
 package org.greenem.plugins.Manhunt;
 
 import static org.greenem.plugins.Manhunt.Main.Frozen;
+import static org.greenem.plugins.Manhunt.Main.FrozenAir;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
@@ -13,6 +14,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityAirChangeEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
@@ -154,4 +156,29 @@ public class FrozenEvents implements Listener {
 			}
 		}
 	}
+	
+	@EventHandler
+	public void EntityAirChangeEvent(EntityAirChangeEvent e) {
+		if(e.getEntity() instanceof Player) {
+			Player p = (Player) e.getEntity();
+			if(Frozen.contains(((Player) e.getEntity()).getName())) {
+				if(!FrozenAir.containsKey(p)) FrozenAir.put(p, p.getRemainingAir());
+				if(e.getAmount()<FrozenAir.get(p)) {
+					//e.setAmount(-300);
+					e.setAmount(FrozenAir.get(p));
+				}
+			}
+		}
+	}
+	
+	//DESABLED DUE TO 1.18 REMOVED IT
+	/*@EventHandler
+	public void EEntityDismount(EntityDismountEvent e) {
+		if(e.getEntity() instanceof Player) {
+			//log.info("EntityDismountEvent");
+			if(Frozen.contains(((Player) e.getEntity()).getName())){
+				e.setCancelled(true);
+			}
+		}
+	}*/
 }

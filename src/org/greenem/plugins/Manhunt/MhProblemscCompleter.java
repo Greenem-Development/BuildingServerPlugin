@@ -1,4 +1,4 @@
-package me.greenem.Manhunt;
+package org.greenem.plugins.Manhunt;
 
 import java.util.ArrayList;
 import java.util.List;

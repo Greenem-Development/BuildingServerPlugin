@@ -1,4 +1,4 @@
-package me.greenem.Manhunt;
+package org.greenem.plugins.Manhunt;
 
 import java.io.File;
 import java.io.FileNotFoundException;

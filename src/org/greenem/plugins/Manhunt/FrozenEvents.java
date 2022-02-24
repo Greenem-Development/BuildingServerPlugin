@@ -1,4 +1,6 @@
-package me.greenem.Manhunt;
+package org.greenem.plugins.Manhunt;
+
+import static org.greenem.plugins.Manhunt.MainManhuntFile.Frozen;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
@@ -22,7 +24,6 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
-import static me.greenem.Manhunt.MainManhuntFile.Frozen;
 
 public class FrozenEvents implements Listener {
 	@EventHandler(priority=EventPriority.LOW)

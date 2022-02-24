@@ -1,4 +1,4 @@
-package org.greenem.plugins.Manhunt;
+package org.greenem.plugins.Manhunt.completers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
-public class MhProblemscCompleter implements TabCompleter {
+public class EmptyCompleterNoArgs implements TabCompleter {
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String commandLabel, String[] args) {
@@ -15,7 +15,6 @@ public class MhProblemscCompleter implements TabCompleter {
 		//sender.sendMessage(commandLabel);
 		if(cmd.getName().equalsIgnoreCase("mhproblems")) {
 			if(args.length==1) {
-				arguments.add("give_compass");
 				return arguments;
 			}
 		}

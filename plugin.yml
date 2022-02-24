@@ -1,5 +1,5 @@
 name: Manhunt
-main: me.greenem.Manhunt.MainManhuntFile
+main: org.greenem.plugins.Manhunt.Main
 version: 3.0.0
 api-version: 1.18
 commands:
@@ -15,9 +15,6 @@ commands:
    mhstart:
       description: Start mh
       default: true
-   mhstop:
-      description: Stop mh
-      default: true
    mhproblems:
       description: Special commands
       default: true
@@ -30,6 +27,9 @@ commands:
    loc:
       description: Show your location and direction (not that useful, but still a thing)
       default: true
+   mhreloadconfig:
+      description: Reload the plugin config
+      permission: op
    resetworld:
       description: DELETES THE WORLD AND RESTARTS THE SERVER
       permission: op

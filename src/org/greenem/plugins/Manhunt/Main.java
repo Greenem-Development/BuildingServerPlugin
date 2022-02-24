@@ -35,6 +35,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 //import org.spigotmc.event.entity.EntityDismountEvent;
+import org.greenem.plugins.Manhunt.completers.MhProblemscCompleter;
 
 //import com.mysql.jdbc.Connection;
 
@@ -151,21 +152,43 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 	
+	public boolean isSenderAPlayer(CommandSender sender) {
+		if(sender instanceof ConsoleCommandSender) {
+			sender.sendMessage(ChatColor.RED + "You can't do it through console!");
+			return false;
+		}
+		if(!(sender instanceof Player)) {
+			sender.sendMessage(ChatColor.RED + "You can use it only as a player!");
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean isSenderAPlayerOrConsole(CommandSender sender) {
+		if(!(sender instanceof Player) && !(sender instanceof ConsoleCommandSender)) {
+			sender.sendMessage(ChatColor.RED + "You can use it only as a player!");
+			return false;
+		}
+		return true;
+	}
+	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
 		Player p = null;
 		String pName = "";
 		try {
 			p = (Player) sender;
 			pName = p.getName();
-		} catch (ClassCastException e) {
-			
-		}
+		} catch (ClassCastException e) {}
 		
 		if(cmd.getName().equalsIgnoreCase("gm")){
-			GmCommand(sender, args);
+			if(isSenderAPlayerOrConsole(sender)) {
+				GmCommand(sender, args);
+			}
 		}
 		else if(cmd.getName().equalsIgnoreCase("heal")){
-			HealCommand(p, null, args);
+			if(isSenderAPlayerOrConsole(sender)) {
+				HealCommand(sender, p, null, args);
+			}
 		}
 		
 		//--------------------------------------------------------------------------------------------------------------------------------------------------\\
@@ -173,6 +196,9 @@ public class Main extends JavaPlugin implements Listener {
 		//--------------------------------------------------------------------------------------------------------------------------------------------------\\
 		
 		if(cmd.getName().equalsIgnoreCase("mhhunter")){
+			if(!isSenderAPlayer(sender)) {
+				return true;
+			}
 			if(Speedrunners.contains(pName)) {
 				p.sendMessage(ChatColor.RED + "You are a speedrunner. Use /norole");
 				return true;
@@ -192,6 +218,9 @@ public class Main extends JavaPlugin implements Listener {
 			}
 		}
 		else if(cmd.getName().equalsIgnoreCase("mhspeedrunner")){
+			if(!isSenderAPlayer(sender)) {
+				return true;
+			}
 			if(Hunters.contains(pName)) {
 				p.sendMessage(ChatColor.RED + "You are a hunter. Use /norole");
 				return true;
@@ -209,6 +238,9 @@ public class Main extends JavaPlugin implements Listener {
 			}
 		}
 		else if(cmd.getName().equalsIgnoreCase("mhnorole")){
+			if(!isSenderAPlayer(sender)) {
+				return true;
+			}
 			if(Hunters.contains(pName)) {
 				Hunters.remove(pName);
 			}
@@ -224,6 +256,9 @@ public class Main extends JavaPlugin implements Listener {
 			p.sendMessage(ChatColor.GOLD + "Now you removed your role.");
 		}
 		else if(cmd.getName().equalsIgnoreCase("mhstart")){
+			if(!isSenderAPlayer(sender)) {
+				return true;
+			}
 			if(args.length<1) {
 				p.sendMessage(ChatColor.RED + "Insert the delay in seconds. /mhstart <seconds>");
 			}
@@ -235,18 +270,36 @@ public class Main extends JavaPlugin implements Listener {
 			}
 		}
 		else if(cmd.getName().equalsIgnoreCase("mhstop")){
+			if(!isSenderAPlayerOrConsole(sender)) {
+				return true;
+			}
 			mhStopComand(p, args);
 		}
 		else if(cmd.getName().equalsIgnoreCase("mhproblems")){
+			if(!isSenderAPlayer(sender)) {
+				return true;
+			}
 			mhProblemsComand(p, args);
 		}
 		else if(cmd.getName().equalsIgnoreCase("loc")){
+			if(!isSenderAPlayer(sender)) {
+				return true;
+			}
 			//sendActionBar(p, p.getLocation().toString());
 			p.sendMessage(ChatColor.ITALIC + "" + ChatColor.WHITE + "Your location: " + ChatColor.AQUA + "" + p.getLocation().getBlockX() + " " + p.getLocation().getBlockY() + " " + p.getLocation().getBlockZ() + " ");
 			p.sendMessage(ChatColor.ITALIC + "" + ChatColor.WHITE + "Your direction: " + ChatColor.LIGHT_PURPLE + "" + GetPlayerFacing(p));
 		}
 		else if (cmd.getName().equalsIgnoreCase("resetworld")) {
+			if(!isSenderAPlayerOrConsole(sender)) {
+				return true;
+			}
 			resetWorld(sender);
+		}
+		else if (cmd.getName().equalsIgnoreCase("mhreloadconfig")) {
+			if(!isSenderAPlayerOrConsole(sender)) {
+				return true;
+			}
+			loadConfig();
 		}
 		return false;
 	}
@@ -466,7 +519,7 @@ public class Main extends JavaPlugin implements Listener {
 			return;
 		}
 		Player p = getServer().getPlayerExact(sender.getName());
-		if(p.isOp() == true){
+		if(sender instanceof ConsoleCommandSender || p.isOp() == true){
 			if(args.length == 0){
 				sender.sendMessage(ChatColor.RED + "Please, insert gamemode number.");
 			}
@@ -535,7 +588,10 @@ public class Main extends JavaPlugin implements Listener {
 	public String coloredHealSentence(String from, String to) {
 		String s = "";
 		
-		if(Hunters.contains(to)) {
+		if(to.equals("[CONSOLE]")) {
+			s += ChatColor.GOLD + "" + ChatColor.BOLD;
+		}
+		else if(Hunters.contains(to)) {
 			s += ChatColor.RED + "" + ChatColor.BOLD;
 		}
 		else if(Speedrunners.contains(to)) {
@@ -550,6 +606,9 @@ public class Main extends JavaPlugin implements Listener {
 		
 		if(!from.equals(to)) {
 			s += " by ";
+			if(from.equals("[CONSOLE]")) {
+				s += ChatColor.GOLD + "" + ChatColor.BOLD;
+			}
 			if(Hunters.contains(from)) {
 				s += ChatColor.RED + "" + ChatColor.BOLD;
 			}
@@ -575,14 +634,18 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 	
-	public void HealCommand(Player p, String pName, String[] args) {
+	public void HealCommand(CommandSender sender, Player p, String pName, String[] args) {
+		boolean console = sender instanceof ConsoleCommandSender;
 		if(!ConfigData.allowHealCommandForOps) {
 			if(p!=null) {
 				p.sendMessage(ChatColor.RED + "This command was disabled in the config.");
 			}
 			return;
 		}
-		if(pName==null) {
+		if(console) {
+			pName = "[CONSOLE]";
+		}
+		else if(pName==null) {
 			pName = p.getName();
 		}
 		if(p==null) {
@@ -1117,28 +1180,28 @@ public class Main extends JavaPlugin implements Listener {
 		Speedrunners.add("Greenem");
 		Hunters.add("MayX");
 		//Hunters.add("Dismov");
-		HealCommand(null, "Greenem", new String[]{});
+		HealCommand(null, null, "Greenem", new String[]{});
 		log("-----");
-		HealCommand(null, "Greenem", new String[]{"Greenem"});
+		HealCommand(null, null, "Greenem", new String[]{"Greenem"});
 		log("-----");
-		HealCommand(null, "Greenem", new String[]{"MayX"});
+		HealCommand(null, null, "Greenem", new String[]{"MayX"});
 		log("-----");
-		HealCommand(null, "Greenem", new String[]{"Dismov"});
+		HealCommand(null, null, "Greenem", new String[]{"Dismov"});
 		log("----------------------------------------------");
-		HealCommand(null, "MayX", new String[]{});
+		HealCommand(null, null, "MayX", new String[]{});
 		log("-----");
-		HealCommand(null, "MayX", new String[]{"MayX"});
+		HealCommand(null, null, "MayX", new String[]{"MayX"});
 		log("-----");
-		HealCommand(null, "MayX", new String[]{"Greenem"});
+		HealCommand(null, null, "MayX", new String[]{"Greenem"});
 		log("-----");
-		HealCommand(null, "MayX", new String[]{"Dismov"});
+		HealCommand(null, null, "MayX", new String[]{"Dismov"});
 		log("----------------------------------------------");
-		HealCommand(null, "Dismov", new String[]{});
+		HealCommand(null, null, "Dismov", new String[]{});
 		log("-----");
-		HealCommand(null, "Dismov", new String[]{"Dismov"});
+		HealCommand(null, null, "Dismov", new String[]{"Dismov"});
 		log("-----");
-		HealCommand(null, "Dismov", new String[]{"Greenem"});
+		HealCommand(null, null, "Dismov", new String[]{"Greenem"});
 		log("-----");
-		HealCommand(null, "Dismov", new String[]{"MayX"});
+		HealCommand(null, null, "Dismov", new String[]{"MayX"});
 	}
 }

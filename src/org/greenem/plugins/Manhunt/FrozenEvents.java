@@ -1,6 +1,6 @@
 package org.greenem.plugins.Manhunt;
 
-import static org.greenem.plugins.Manhunt.MainManhuntFile.Frozen;
+import static org.greenem.plugins.Manhunt.Main.Frozen;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;

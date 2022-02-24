@@ -41,7 +41,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.inventory.meta.CompassMeta;
 
 
-public class MainManhuntFile extends JavaPlugin implements Listener {
+public class Main extends JavaPlugin implements Listener {
 	
 	Logger log = getLogger();
 	public ArrayList<String> Hunters = new ArrayList<>();

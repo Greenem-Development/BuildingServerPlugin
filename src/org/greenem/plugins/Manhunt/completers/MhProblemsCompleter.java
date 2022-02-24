@@ -7,7 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
-public class MhProblemscCompleter implements TabCompleter {
+public class MhProblemsCompleter implements TabCompleter {
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String commandLabel, String[] args) {
@@ -19,7 +19,6 @@ public class MhProblemscCompleter implements TabCompleter {
 				return arguments;
 			}
 		}
-		
 		return null;
 	}
 	

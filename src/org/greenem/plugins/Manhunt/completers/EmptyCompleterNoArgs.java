@@ -13,12 +13,9 @@ public class EmptyCompleterNoArgs implements TabCompleter {
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		List<String> arguments = new ArrayList<>();
 		//sender.sendMessage(commandLabel);
-		if(cmd.getName().equalsIgnoreCase("mhproblems")) {
-			if(args.length==1) {
-				return arguments;
-			}
+		if(args.length==1) {
+			return arguments;
 		}
-		
 		return null;
 	}
 	

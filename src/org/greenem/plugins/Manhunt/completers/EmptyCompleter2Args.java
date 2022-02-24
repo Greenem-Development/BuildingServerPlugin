@@ -12,12 +12,9 @@ public class EmptyCompleter2Args implements TabCompleter {
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		List<String> arguments = new ArrayList<>();
-		if(cmd.getName().equalsIgnoreCase("mhproblems")) {
-			if(args.length==4) {
-				return arguments;
-			}
+		if(args.length==3) {
+			return arguments;
 		}
-		
 		return null;
 	}
 	

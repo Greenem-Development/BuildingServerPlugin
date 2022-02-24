@@ -34,8 +34,11 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.greenem.plugins.Manhunt.completers.EmptyCompleterNoArgs;
+import org.greenem.plugins.Manhunt.completers.MhGmCompleter;
+import org.greenem.plugins.Manhunt.completers.MhStartCompleter;
 //import org.spigotmc.event.entity.EntityDismountEvent;
-import org.greenem.plugins.Manhunt.completers.MhProblemscCompleter;
+import org.greenem.plugins.Manhunt.completers.MhProblemsCompleter;
 
 //import com.mysql.jdbc.Connection;
 
@@ -1031,7 +1034,14 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	public void RegisterAllCommands() {
-		getCommand("mhproblems").setTabCompleter(new MhProblemscCompleter());
+		getCommand("mhproblems").setTabCompleter(new MhProblemsCompleter());
+		getCommand("mhhunter").setTabCompleter(new EmptyCompleterNoArgs());
+		getCommand("mhnorole").setTabCompleter(new EmptyCompleterNoArgs());
+		getCommand("gm").setTabCompleter(new MhGmCompleter());
+		getCommand("mhstart").setTabCompleter(new MhStartCompleter());
+		getCommand("loc").setTabCompleter(new EmptyCompleterNoArgs());
+		getCommand("mhreloadconfig").setTabCompleter(new EmptyCompleterNoArgs());
+		getCommand("resetworld").setTabCompleter(new EmptyCompleterNoArgs());
 	}
 	
 	//             /// ////                    /// /                 / /           /         /       / / / /          / /  //          / ///           // / / / /

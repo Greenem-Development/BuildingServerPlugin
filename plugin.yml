@@ -19,7 +19,7 @@ commands:
       description: Special commands
       default: true
    gm:
-      description: Gamemode
+      description: Fast gamemode
       permission: op
    heal:
       description: Healing

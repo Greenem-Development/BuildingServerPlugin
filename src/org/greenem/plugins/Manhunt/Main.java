@@ -175,6 +175,21 @@ public class Main extends JavaPlugin implements Listener {
 		return true;
 	}
 	
+	public void doNoRole(Player p, String pName) {
+		if(Hunters.contains(pName)) {
+			Hunters.remove(pName);
+		}
+		else if(Speedrunners.contains(pName)) {
+			Speedrunners.remove(pName);
+		}
+		if(PortalEnd.containsKey(pName)) PortalEnd.remove(pName);
+		if(PortalFrom.containsKey(pName)) PortalFrom.remove(pName);
+		if(PortalTo.containsKey(pName)) PortalTo.remove(pName);
+		if(HuntersPortalFrom.containsKey(pName)) HuntersPortalFrom.remove(pName);
+		if(HuntersPortalTo.containsKey(pName)) HuntersPortalTo.remove(pName);
+		RemoveMaterial(p, Material.COMPASS);
+	}
+	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
 		Player p = null;
 		String pName = "";
@@ -203,8 +218,9 @@ public class Main extends JavaPlugin implements Listener {
 				return true;
 			}
 			if(Speedrunners.contains(pName)) {
-				p.sendMessage(ChatColor.RED + "You are a speedrunner. Use /norole");
-				return true;
+//				p.sendMessage(ChatColor.RED + "You are a speedrunner. Use /norole first");
+//				return true;
+				doNoRole(p, pName);
 			}
 			if(!p.getWorld().getEnvironment().equals(Environment.NORMAL)) {
 				p.sendMessage(ChatColor.RED + "You must be in the overworld to use this command.");
@@ -214,10 +230,10 @@ public class Main extends JavaPlugin implements Listener {
 				Hunters.add(pName);
 				AddItemStack(p, new ItemStack(Material.COMPASS), 8);
 				findTarget();
-				p.sendMessage(ChatColor.GOLD + "Now you are a hunter.");
+				p.sendMessage(ChatColor.GOLD + "Now you are a " + ChatColor.RED + "" + ChatColor.BOLD + "hunter.");
 			}
 			else {
-				p.sendMessage(ChatColor.DARK_PURPLE + "You are already a hunter.");
+				p.sendMessage(ChatColor.RED + "You are already a hunter.");
 			}
 		}
 		else if(cmd.getName().equalsIgnoreCase("mhspeedrunner")){
@@ -225,8 +241,9 @@ public class Main extends JavaPlugin implements Listener {
 				return true;
 			}
 			if(Hunters.contains(pName)) {
-				p.sendMessage(ChatColor.RED + "You are a hunter. Use /norole");
-				return true;
+//				p.sendMessage(ChatColor.RED + "You are a hunter. Use /norole");
+//				return true;
+				doNoRole(p, pName);
 			}
 			if(!p.getWorld().getEnvironment().equals(Environment.NORMAL)) {
 				p.sendMessage(ChatColor.RED + "You must be in the overworld to use this command. (There would be problems with missing portal location. Later this will be avaliable)");
@@ -237,26 +254,15 @@ public class Main extends JavaPlugin implements Listener {
 				p.sendMessage(ChatColor.GOLD + "Now you are a speedrunner.");
 			}
 			else {
-				p.sendMessage(ChatColor.DARK_PURPLE + "You are already a speedrunner.");
+				p.sendMessage(ChatColor.RED + "You are already a " + ChatColor.GREEN + "" + ChatColor.BOLD + "speedrunner.");
 			}
 		}
 		else if(cmd.getName().equalsIgnoreCase("mhnorole")){
 			if(!isSenderAPlayer(sender)) {
 				return true;
 			}
-			if(Hunters.contains(pName)) {
-				Hunters.remove(pName);
-			}
-			else if(Speedrunners.contains(pName)) {
-				Speedrunners.remove(pName);
-			}
-			if(PortalEnd.containsKey(pName)) PortalEnd.remove(pName);
-			if(PortalFrom.containsKey(pName)) PortalFrom.remove(pName);
-			if(PortalTo.containsKey(pName)) PortalTo.remove(pName);
-			if(HuntersPortalFrom.containsKey(pName)) HuntersPortalFrom.remove(pName);
-			if(HuntersPortalTo.containsKey(pName)) HuntersPortalTo.remove(pName);
-			RemoveMaterial(p, Material.COMPASS);
-			p.sendMessage(ChatColor.GOLD + "Now you removed your role.");
+			doNoRole(p, pName);
+			p.sendMessage(ChatColor.GOLD + "You have removed your role.");
 		}
 		else if(cmd.getName().equalsIgnoreCase("mhstart")){
 			if(!isSenderAPlayer(sender)) {
@@ -527,6 +533,10 @@ public class Main extends JavaPlugin implements Listener {
 				sender.sendMessage(ChatColor.RED + "Please, insert gamemode number.");
 			}
 			else if(args.length == 1){
+				if(sender instanceof ConsoleCommandSender) {
+					sender.sendMessage(ChatColor.RED + "You can only change the players' gamemodes from console!");
+					return;
+				}
 				if(args[0].equalsIgnoreCase("0")){
 					p.setGameMode(GameMode.SURVIVAL);
 				}
@@ -562,11 +572,16 @@ public class Main extends JavaPlugin implements Listener {
 					}
 				}
 				else {
-					sender.sendMessage(ChatColor.RED + "Such player doesn't exist.");
+					if(args[1].equals("0") || args[1].equals("1") || args[1].equals("2") || args[1].equals("3")) {
+						sender.sendMessage(ChatColor.RED + "Usage for other players: /gm <number 0-3> <player>");
+					}
+					else {
+						sender.sendMessage(ChatColor.RED + "Such player isn't online.");
+					}
 				}
 			}
 			else {
-				sender.sendMessage(ChatColor.RED + "Please, type the command in such order: /gm <number 0-3> <player>.");
+				sender.sendMessage(ChatColor.RED + "Please, type the command in such order: /gm <number 0-3> <player>");
 			}
 		}
 		else {
@@ -663,10 +678,10 @@ public class Main extends JavaPlugin implements Listener {
 				p.setHealth(20);
 				p.setFoodLevel(20);
 			}
-			notifpersonal = ChatColor.GRAY + "You were healed";
+			notifpersonal = ChatColor.GRAY + "You have been healed";
 			notifOthers = colorNameFrom + ChatColor.RESET + "" + ChatColor.GRAY + " was healed";
 			if(p!=null) {
-				p.sendMessage(colorNameFrom);
+				p.sendMessage(notifpersonal);
 			}
 			if(logHealInfo) log("notifpersonal: " + notifpersonal);
 			if(Hunters.contains(pName) || Speedrunners.contains(pName)) {
@@ -679,7 +694,7 @@ public class Main extends JavaPlugin implements Listener {
 				}
 			}
 		}
-		if(args.length==1) {
+		else if(args.length==1) {
 			String pTo = args[0];
 			Player pToP = getServer().getPlayerExact(pTo);
 			if(pToP!=null || logHealInfo) {
@@ -691,7 +706,7 @@ public class Main extends JavaPlugin implements Listener {
 				}
 				
 				if(pTo.equals(pFrom)) {
-					notifpersonal = ChatColor.GRAY + "You have been healed.";
+					notifpersonal = ChatColor.GRAY + "You have been healed";
 					if(p!=null) {
 						p.sendMessage(notifpersonal);
 					}
@@ -723,7 +738,7 @@ public class Main extends JavaPlugin implements Listener {
 				}
 			}
 			else {
-				String problem = ChatColor.RED + "Such player doesn't exist.";
+				String problem = ChatColor.RED + "Such player isn't online.";
 				if(logHealInfo) log("personal error to " + pName + ": " + problem);
 				if(p!=null) {
 					p.sendMessage(problem);

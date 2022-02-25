@@ -30,7 +30,6 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -70,12 +69,12 @@ public class Main extends JavaPlugin implements Listener {
 	
 	@Override
 	public void onDisable() {
-		log.info("Your Manhunt plugin has been disabled.");
+		log(ChatColor.RED + "Your Manhunt plugin has been disabled.");
 	}
 
 	@Override
 	public void onEnable() {
-		log.info("Your Manhunt plugin has been enabled!");
+		log(ChatColor.GREEN + "Your Manhunt plugin has been enabled!");
 		
 		getServer().getPluginManager().registerEvents(this, this);
 		RegisterAllCommands();
@@ -1078,8 +1077,6 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	//             /// ////                    /// /                 / /           /         /       / / / /          / /  //          / ///           // / / / /
-	
-	
 
 	public Location IsBlockNearby(Player p, Material material, int distanse) {
         ArrayList<Location> temp = new ArrayList<Location>();

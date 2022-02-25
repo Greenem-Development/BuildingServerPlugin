@@ -24,9 +24,6 @@ commands:
    heal:
       description: Healing
       permission: op
-   loc:
-      description: Show your location and direction (not that useful, but still a thing)
-      default: true
    mhreloadconfig:
       description: Reload the plugin config
       permission: op

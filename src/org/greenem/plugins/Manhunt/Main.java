@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityAirChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -31,6 +30,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -133,6 +133,16 @@ public class Main extends JavaPlugin implements Listener {
 					logCastEx(currentKey);
 				}
 			}
+			currentKey = "require-confirmation-for-world-resetting";
+			if (c.get(currentKey) == null) {
+				c.set(currentKey, false);
+			} else {
+				try {
+					ConfigData.requireConfirmationForWorldResetting = (boolean) c.get(currentKey);
+				} catch (ClassCastException e) {
+					logCastEx(currentKey);
+				}
+			}
 		} catch (Throwable t) {
 			log("Error while reading \"" + currentKey + "\" from the config");
 		}
@@ -173,21 +183,6 @@ public class Main extends JavaPlugin implements Listener {
 			return false;
 		}
 		return true;
-	}
-	
-	public void doNoRole(Player p, String pName) {
-		if(Hunters.contains(pName)) {
-			Hunters.remove(pName);
-		}
-		else if(Speedrunners.contains(pName)) {
-			Speedrunners.remove(pName);
-		}
-		if(PortalEnd.containsKey(pName)) PortalEnd.remove(pName);
-		if(PortalFrom.containsKey(pName)) PortalFrom.remove(pName);
-		if(PortalTo.containsKey(pName)) PortalTo.remove(pName);
-		if(HuntersPortalFrom.containsKey(pName)) HuntersPortalFrom.remove(pName);
-		if(HuntersPortalTo.containsKey(pName)) HuntersPortalTo.remove(pName);
-		RemoveMaterial(p, Material.COMPASS);
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
@@ -311,6 +306,21 @@ public class Main extends JavaPlugin implements Listener {
 			loadConfig();
 		}
 		return false;
+	}
+	
+	public void doNoRole(Player p, String pName) {
+		if(Hunters.contains(pName)) {
+			Hunters.remove(pName);
+		}
+		else if(Speedrunners.contains(pName)) {
+			Speedrunners.remove(pName);
+		}
+		if(PortalEnd.containsKey(pName)) PortalEnd.remove(pName);
+		if(PortalFrom.containsKey(pName)) PortalFrom.remove(pName);
+		if(PortalTo.containsKey(pName)) PortalTo.remove(pName);
+		if(HuntersPortalFrom.containsKey(pName)) HuntersPortalFrom.remove(pName);
+		if(HuntersPortalTo.containsKey(pName)) HuntersPortalTo.remove(pName);
+		RemoveMaterial(p, Material.COMPASS);
 	}
 	
 	@EventHandler
@@ -485,7 +495,7 @@ public class Main extends JavaPlugin implements Listener {
 						//getServer().broadcastMessage(ChatColor.RED + "Almost a error, speedrunner got into another dimension without plugin seeing this.");
 					}
 					else {
-						getServer().broadcastMessage(ChatColor.RED + "ERROR, hunter got into another dimension without plugin seeing this.");
+						getServer().broadcastMessage(ChatColor.RED + "ERROR! A hunter got into another dimension without plugin seeing this.");
 					}
 				}
 			}
@@ -591,7 +601,11 @@ public class Main extends JavaPlugin implements Listener {
 	
 	public String coloredName(String name) {
 		String s = "";
-		if(Hunters.contains(name)) {
+		
+		if(name.equals("[CONSOLE]")) {
+			s += ChatColor.GOLD + "" + ChatColor.BOLD + name;
+		}
+		else if(Hunters.contains(name)) {
 			s += ChatColor.RED + "" + ChatColor.BOLD + name;
 		}
 		else if(Speedrunners.contains(name)) {
@@ -674,6 +688,10 @@ public class Main extends JavaPlugin implements Listener {
 		String colorNameFrom = coloredName(pFrom);
 		String notifOthers;
 		if(args.length == 0) {
+			if(sender instanceof ConsoleCommandSender) {
+				sender.sendMessage(ChatColor.RED + "You can't heal yourself as the console!");
+				return;
+			}
 			if(p!=null) {
 				p.setHealth(20);
 				p.setFoodLevel(20);
@@ -963,7 +981,7 @@ public class Main extends JavaPlugin implements Listener {
 									}
 								}
 								else {
-									pHunter.sendTitle(ChatColor.GREEN + "Go!", "", 5, 10, 7);
+									pHunter.sendTitle(ChatColor.GREEN + "Go!", "", 5, 4, 7);
 								}
 							}
 						}, 20*(delay-i));
@@ -1106,7 +1124,6 @@ public class Main extends JavaPlugin implements Listener {
 	
 	public void resetWorld(CommandSender sender) {
 		if(sender instanceof ConsoleCommandSender || (sender instanceof Player && ((Player) sender).isOp())) {
-			
 			copyResetWorldJarFile();
 			
 			File pluginsDir = configsDirectory = new File(getServer().getWorldContainer(), "plugins");

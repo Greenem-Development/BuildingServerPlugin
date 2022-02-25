@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
@@ -26,8 +27,10 @@ public class MhGmCompleter implements TabCompleter {
 				return arguments;
 			}
 			else if(args.length==2) {
-				if(Bukkit.getOnlinePlayers().size()==1 && sender instanceof Player) {
-					arguments.add(sender.getName());
+				if((Bukkit.getOnlinePlayers().size()==1 && sender instanceof Player) || sender instanceof ConsoleCommandSender) {
+					for (Player thePlayer : Bukkit.getOnlinePlayers()) {
+						arguments.add(thePlayer.getName());	
+					}
 				}
 //				if(!(args[0].equals("0") || args[0].equals("1") || args[0].equals("2") || args[0].equals("3"))) {
 //					arguments.add("0");

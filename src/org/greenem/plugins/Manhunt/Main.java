@@ -1,5 +1,6 @@
 package org.greenem.plugins.Manhunt;
 
+import static org.greenem.plugins.Manhunt.SimpleLogger.log;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -16,6 +17,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -30,6 +32,8 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.generator.ChunkGenerator.BiomeGrid;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -1185,34 +1189,6 @@ public class Main extends JavaPlugin implements Listener {
 				e.printStackTrace();
 			}
 		}
-	}
-	
-	public void log(String s) {
-		Bukkit.getConsoleSender().sendMessage(s);
-	}
-	
-	public void log(int s) {
-		log(s + "");
-	}
-	
-	public void log(boolean s) {
-		log(s + "");
-	}
-	
-	public void log(double s) {
-		log(s + "");
-	}
-	
-	public void log(float s) {
-		log(s + "");
-	}
-	
-	public void log(char s) {
-		log(s + "");
-	}
-	
-	public void log(short s) {
-		log(s + "");
 	}
 	
 	public void healTests() {

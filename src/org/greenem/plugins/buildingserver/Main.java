@@ -7,9 +7,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -18,10 +23,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.greenem.plugins.buildingserver.completers.WorldCompleter;
-
-//import com.mysql.jdbc.Connection;
-
-
 
 public class Main extends JavaPlugin implements Listener {
 	private Logger log = getLogger();
@@ -168,7 +169,25 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	public void worldCommand(CommandSender sender, String[] args) {
-		
+		if(args.length==0) {
+			sender.sendMessage(ChatColor.RED + "Put the world name there!");
+			return;
+		} else if(args.length>1) {
+			sender.sendMessage(ChatColor.RED + "Put ONLY the world name there!");
+			return;
+		} else { // 1 arg
+			String wName = args[0];
+			boolean exists = WorldLoadHelper.worldExists(wName);
+			if(exists) {
+				WorldLoadHelper.loadWorld(wName);
+				Player p = (Player) sender;
+				p.teleport(new Location(Bukkit.getWorld(wName), 0.5, 101, 101)); // make better later
+			}
+			else {
+				sender.sendMessage(ChatColor.RED + "The world doesn't exist!");
+				return;
+			}
+		}
 	}
 	
 	public void revertLastChangesCommand(CommandSender sender, String[] args) {
@@ -402,5 +421,10 @@ public class Main extends JavaPlugin implements Listener {
 	
 	public void RegisterAllCommands() {
 		getCommand("mhproblems").setTabCompleter(new WorldCompleter());
+	}
+	
+	@EventHandler
+	public void onJoin(PlayerJoinEvent e) {
+		e.getPlayer().teleport(Locs.mainWorldSpawn);
 	}
 }

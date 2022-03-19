@@ -5,7 +5,9 @@ import static org.greenem.plugins.buildingserver.SimpleLogger.log;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.event.EventHandler;
@@ -15,6 +17,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -155,43 +159,182 @@ public class Main extends JavaPlugin implements Listener {
 		
 		if(cmd.getName().equalsIgnoreCase("revert-last-changes")){
 			if(isSenderAPlayer(sender)) {
-				revertLastChangesCommand(sender, args);
+				revertLastChanges(sender, args);
 			}
 		}
 		
-		else if (cmd.getName().equalsIgnoreCase("mhreloadconfig")) {
-			if(!isSenderAPlayerOrConsole(sender)) {
-				return true;
+		else if (cmd.getName().equalsIgnoreCase("reloadbuildingconfig")) {
+			if(isSenderAPlayerOrConsole(sender)) {
+				loadConfig();
 			}
-			loadConfig();
 		}
 		return false;
 	}
 	
 	public void worldCommand(CommandSender sender, String[] args) {
 		if(args.length==0) {
-			sender.sendMessage(ChatColor.RED + "Put the world name there!");
+//			sender.sendMessage(ChatColor.RED + "Put the world name there!");
+			sender.sendMessage(ChatColor.RED + "Select one of the options!");
 			return;
-		} else if(args.length>1) {
-			sender.sendMessage(ChatColor.RED + "Put ONLY the world name there!");
-			return;
-		} else { // 1 arg
-			String wName = args[0];
-			boolean exists = WorldLoadHelper.worldExists(wName);
-			if(exists) {
-				WorldLoadHelper.loadWorld(wName);
-				Player p = (Player) sender;
-				p.teleport(new Location(Bukkit.getWorld(wName), 0.5, 101, 101)); // make better later
-			}
-			else {
-				sender.sendMessage(ChatColor.RED + "The world doesn't exist!");
-				return;
+//		} else if(args.length>1) {
+//			sender.sendMessage(ChatColor.RED + "Put ONLY the world name there!");
+//			return;
+		} else {
+			if(args[0].equals("teleport")) {
+				if(isSenderAPlayer(sender)) {
+					worldTeleport(sender, args);
+				}
+			} else if(args[0].equals("save")) {
+				worldSave(sender, args);
+			} else if(args[0].equals("revert-changes")) {
+				revertLastChanges(sender, args);
+			} else if(args[0].equals("autosave")) {
+				worldAutosave(sender, args);
 			}
 		}
 	}
 	
-	public void revertLastChangesCommand(CommandSender sender, String[] args) {
+	private void worldTeleport(CommandSender sender, String[] args) {
+		if(args.length>2) {
+			sender.sendMessage(ChatColor.RED + "Put ONLY the world name there!");
+			return;
+		}
+		String wName = args[1];
+		boolean exists = WorldLoadHelper.worldExists(wName);
+		if(exists) {
+			boolean allowed = false;
+			for (String s : ConfigData.worldsToBuildInArrayList) {
+				if(s.equals(wName)) {
+					allowed = true;
+					break;
+				}
+			}
+			if(allowed) {
+				WorldLoadHelper.loadWorld(wName);
+				Player p = (Player) sender;
+				p.teleport(new Location(Bukkit.getWorld(wName), 0.5, 101, 0.5)); // make better later
+			}
+			else {
+				sender.sendMessage(ChatColor.RED + "You can't join that world!");
+				return;
+			}
+		}
+		else {
+			sender.sendMessage(ChatColor.RED + "The world doesn't exist!");
+			return;
+		}
+	}
+	
+	public void revertLastChanges(CommandSender sender, String[] args) {
 		Player p = (Player) sender;
+		String wName = null;
+		if(args.length==1) {
+			wName = p.getWorld().getName();
+		} else if(args.length>2) {
+			sender.sendMessage(ChatColor.RED + "Put ONLY the world name there!");
+			return;
+		} else {
+			wName = args[1];
+		}
+		
+		if(wName.equals(Lines.mainWorldName)) {
+			sender.sendMessage(ChatColor.RED + "You can't use it on the main world! (currently not supported)");
+			return;
+		}
+		boolean exists = WorldLoadHelper.worldExists(wName);
+		if(exists) {
+			Map<Player, Location> locations = new HashMap<Player, Location>(); // if they log out, it's not my fault (what if the tp is called on an offline player?)
+			World w = Bukkit.getWorld(wName);
+			for (Player player : w.getPlayers()) {
+				locations.put(player, player.getLocation().clone());
+				player.teleport(Locs.mainWorldSpawn);
+				player.sendMessage(ChatColor.GRAY + "You will be teleported back after the server reversed the changes of that world after the last save. The operation was erquested by " + p.getName()); // what if he already logged out, npe lol
+			}
+			Bukkit.unloadWorld(w, false); // do we need autosaves?
+			Bukkit.createWorld(new WorldCreator(wName));
+			for (Player player : locations.keySet()) {
+				player.teleport(locations.get(player));
+				player.sendMessage(ChatColor.GRAY + "You were be teleported back");
+			}
+		}
+		else {
+			sender.sendMessage(ChatColor.RED + "The world doesn't exist!");
+			return;
+		}
+	}
+	
+	public void worldSave(CommandSender sender, String[] args) {
+		Player p = (Player) sender;
+		String worldName = null;
+		World w = null;
+		if(args.length==2) {
+			worldName = args[1];
+		}
+		if(args.length>2) {
+//			sender.sendMessage(ChatColor.RED + "Don't use any extra arguments there!");
+			sender.sendMessage(ChatColor.RED + "Put only world name if you need it!");
+			return;
+		} else {
+			if(worldName==null) {
+				if(isSenderAPlayer(sender)) {
+					w = p.getWorld();					
+				} else return;
+			} else {
+				w = Bukkit.getWorld(worldName);
+			}
+			w.save();
+		}
+	}
+	
+	public void unloadWorldCommand(CommandSender sender, String[] args) {
+		Player p = (Player) sender;
+		String worldName = null;
+		World w = null;
+		if(args.length==2) {
+			worldName = args[1];
+		}
+		if(args.length>2) {
+//			sender.sendMessage(ChatColor.RED + "Don't use any extra arguments there!");
+			sender.sendMessage(ChatColor.RED + "Put only world name if you need it!");
+			return;
+		} else {
+			if(worldName==null) {
+				if(isSenderAPlayer(sender)) {
+					w = p.getWorld();					
+				} else return;
+			} else {
+				w = Bukkit.getWorld(worldName);
+			}
+			for (Player player : w.getPlayers()) {
+				player.teleport(Locs.mainWorldSpawn);
+				player.sendMessage(ChatColor.GRAY + "You were teleported to the main world because the world you were in was unloaded by " + p.getName());
+			}
+			Bukkit.unloadWorld(w, true);
+		}
+	}
+	
+	public void worldAutosave(CommandSender sender, String[] args) {
+		Player p = (Player) sender;
+		String msg = ChatColor.RED + "Put \"on\" or \"off\" there!";
+		if(args.length==1) {
+			sender.sendMessage(msg);
+			return;
+		} else if(args.length>2) {
+			sender.sendMessage(ChatColor.RED + "Put ONLY the world name there!");
+			return;
+		} else {
+			boolean turnOn = false;
+			if(args[1].equals("on")) {
+				turnOn = true;
+			} else if(args[1].equals("off")) {
+				turnOn = false;
+			} else {
+				p.sendMessage(msg);
+				return;
+			}
+			World w = p.getWorld();
+			w.setAutoSave(turnOn);
+		}
 	}
 	
 	public void gmCommand(CommandSender sender, String[] args) {
@@ -415,12 +558,8 @@ public class Main extends JavaPlugin implements Listener {
 	    return true;
 	}
 	
-	public void mhStopComand(Player p, String[] args) {
-		p.sendMessage("This command is not coded yet");
-	}
-	
 	public void RegisterAllCommands() {
-		getCommand("mhproblems").setTabCompleter(new WorldCompleter());
+		getCommand("world").setTabCompleter(new WorldCompleter());
 	}
 	
 	@EventHandler

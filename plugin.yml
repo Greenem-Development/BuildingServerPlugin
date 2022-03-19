@@ -1,32 +1,20 @@
-name: Manhunt
+name: BuildingServer
 main: org.greenem.plugins.buildingserver.Main
 version: 3.0.0
 api-version: 1.18
 commands:
-   mhhunter:
-      description: Turning the player role to the hunter
-      default: true
-   mhspeedrunner:
-      description: Turning the player role to the speedrunner
-      default: true
-   mhnorole:
-      description: No role (not a speedrunner or a hunter)
-      default: true
-   mhstart:
-      description: Start mh
-      default: true
-   mhproblems:
-      description: Special commands
-      default: true
-   gm:
-      description: Fast gamemode
-      permission: op
-   heal:
-      description: Healing
-      permission: op
-   mhreloadconfig:
+   reloadbuildingconfig:
       description: Reload the plugin config
       permission: op
-   resetworld:
-      description: DELETES THE WORLD AND RESTARTS THE SERVER
+   gm:
+      description: No description
+      permission: op
+   heal:
+      description: No description
+      permission: op
+   world:
+      description: No description
+      permission: op
+   revert-last-changes:
+      description: No description
       permission: op

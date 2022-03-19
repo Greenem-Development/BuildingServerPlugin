@@ -14,11 +14,10 @@ public class WorldCompleter implements TabCompleter {
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		List<String> arguments = new ArrayList<>();
 		//sender.sendMessage(commandLabel);
-		if(cmd.getName().equalsIgnoreCase("worlds")) { // IS THIS NESSESSARY????
+		if(cmd.getName().equalsIgnoreCase("world")) { // IS THIS NESSESSARY????
 			if(args.length==1) {
-				for (String s : ConfigData.worldsToBuildInArrayList) {
-					arguments.add(s);
-				}
+				arguments.add("on");
+				arguments.add("off");
 				return arguments;
 			}
 		}

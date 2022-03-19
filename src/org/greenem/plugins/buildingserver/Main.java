@@ -152,14 +152,13 @@ public class Main extends JavaPlugin implements Listener {
 		}
 		
 		if(cmd.getName().equalsIgnoreCase("world")){
-			if(isSenderAPlayer(sender)) {
+			if(isSenderAPlayerOrConsole(sender)) {
 				worldCommand(sender, args);
 			}
 		}
-		
-		if(cmd.getName().equalsIgnoreCase("revert-last-changes")){
+		if(cmd.getName().equalsIgnoreCase("hub")){
 			if(isSenderAPlayer(sender)) {
-				revertLastChanges(sender, args);
+				p.teleport(Locs.mainWorldSpawn);
 			}
 		}
 		
@@ -186,10 +185,12 @@ public class Main extends JavaPlugin implements Listener {
 				}
 			} else if(args[0].equals("save")) {
 				worldSave(sender, args);
-			} else if(args[0].equals("revert-changes")) {
+			} else if(args[0].equals("revertchanges")) {
 				revertLastChanges(sender, args);
 			} else if(args[0].equals("autosave")) {
 				worldAutosave(sender, args);
+			} else if(args[0].equals("unload")) {
+				unloadWorldCommand(sender, args);
 			}
 		}
 	}
@@ -213,6 +214,7 @@ public class Main extends JavaPlugin implements Listener {
 				WorldLoadHelper.loadWorld(wName);
 				Player p = (Player) sender;
 				p.teleport(new Location(Bukkit.getWorld(wName), 0.5, 101, 0.5)); // make better later
+				sender.sendMessage(ChatColor.GREEN + "You have been teleported!");
 			}
 			else {
 				sender.sendMessage(ChatColor.RED + "You can't join that world!");
@@ -282,10 +284,16 @@ public class Main extends JavaPlugin implements Listener {
 			} else {
 				w = Bukkit.getWorld(worldName);
 			}
+			if(w==null) {
+				sender.sendMessage(ChatColor.RED + "The world doesn't exist!");
+				return;
+			}
 			w.save();
+			sender.sendMessage(ChatColor.GREEN + "The world has been saved!");
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	public void unloadWorldCommand(CommandSender sender, String[] args) {
 		Player p = (Player) sender;
 		String worldName = null;
@@ -294,7 +302,6 @@ public class Main extends JavaPlugin implements Listener {
 			worldName = args[1];
 		}
 		if(args.length>2) {
-//			sender.sendMessage(ChatColor.RED + "Don't use any extra arguments there!");
 			sender.sendMessage(ChatColor.RED + "Put only world name if you need it!");
 			return;
 		} else {
@@ -309,20 +316,35 @@ public class Main extends JavaPlugin implements Listener {
 				player.teleport(Locs.mainWorldSpawn);
 				player.sendMessage(ChatColor.GRAY + "You were teleported to the main world because the world you were in was unloaded by " + p.getName());
 			}
+			if(w==null) {
+				sender.sendMessage(ChatColor.RED + "The world doesn't exist!");
+				return;
+			}
 			Bukkit.unloadWorld(w, true);
+			sender.sendMessage(ChatColor.GREEN + "You have been unloaded!");
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	public void worldAutosave(CommandSender sender, String[] args) {
 		Player p = (Player) sender;
+		String worldName = null;
+		World w = null;
 		String msg = ChatColor.RED + "Put \"on\" or \"off\" there!";
-		if(args.length==1) {
+		if(args.length==3) {
+			worldName = args[2];
+		}
+		if(args.length>3) {
 			sender.sendMessage(msg);
 			return;
-		} else if(args.length>2) {
-			sender.sendMessage(ChatColor.RED + "Put ONLY the world name there!");
-			return;
 		} else {
+			if(worldName==null) {
+				if(isSenderAPlayer(sender)) {
+					w = p.getWorld();					
+				} else return;
+			} else {
+				w = Bukkit.getWorld(worldName);
+			}
 			boolean turnOn = false;
 			if(args[1].equals("on")) {
 				turnOn = true;
@@ -332,8 +354,16 @@ public class Main extends JavaPlugin implements Listener {
 				p.sendMessage(msg);
 				return;
 			}
-			World w = p.getWorld();
+			if(w==null) {
+				sender.sendMessage(ChatColor.RED + "The world doesn't exist!");
+				return;
+			}
+			if(w==null) {
+				sender.sendMessage(ChatColor.RED + "The world doesn't exist!");
+				return;
+			}
 			w.setAutoSave(turnOn);
+			sender.sendMessage(ChatColor.GREEN + "The autosave in the specified world is now " + ChatColor.WHITE + args[1].toUpperCase() + ChatColor.GREEN + "!");
 		}
 	}
 	

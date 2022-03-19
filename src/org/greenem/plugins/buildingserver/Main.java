@@ -1,6 +1,7 @@
-package org.greenem.plugins.Manhunt;
+package org.greenem.plugins.buildingserver;
 
-import static org.greenem.plugins.Manhunt.SimpleLogger.log;
+import static org.greenem.plugins.buildingserver.SimpleLogger.log;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -37,11 +38,10 @@ import org.bukkit.generator.ChunkGenerator.BiomeGrid;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.greenem.plugins.Manhunt.completers.EmptyCompleterNoArgs;
-import org.greenem.plugins.Manhunt.completers.MhGmCompleter;
-import org.greenem.plugins.Manhunt.completers.MhStartCompleter;
-//import org.spigotmc.event.entity.EntityDismountEvent;
-import org.greenem.plugins.Manhunt.completers.MhProblemsCompleter;
+import org.greenem.plugins.buildingserver.completers.EmptyCompleterNoArgs;
+import org.greenem.plugins.buildingserver.completers.MhGmCompleter;
+import org.greenem.plugins.buildingserver.completers.MhProblemsCompleter;
+import org.greenem.plugins.buildingserver.completers.MhStartCompleter;
 
 //import com.mysql.jdbc.Connection;
 
@@ -131,7 +131,7 @@ public class Main extends JavaPlugin implements Listener {
 				c.set(currentKey, true);
 			} else {
 				try {
-					ConfigData.allowGmCommandForOps = (boolean) c.get(currentKey);
+					ConfigData.allowHealCommandForOps = (boolean) c.get(currentKey);
 				} catch (ClassCastException e) {
 					logCastEx(currentKey);
 				}
@@ -774,8 +774,6 @@ public class Main extends JavaPlugin implements Listener {
 			}
 		}
 	}
-	
-	
 
 	public void AddItemStack(Player p, ItemStack ItemStack, int slot) {
 		if(!p.getInventory().contains(ItemStack)) {

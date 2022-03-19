@@ -1,4 +1,4 @@
-package org.greenem.plugins.Manhunt;
+package org.greenem.plugins.buildingserver;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

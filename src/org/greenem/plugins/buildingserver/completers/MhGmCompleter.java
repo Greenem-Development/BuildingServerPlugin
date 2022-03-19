@@ -1,4 +1,4 @@
-package org.greenem.plugins.Manhunt.completers;
+package org.greenem.plugins.buildingserver.completers;
 
 import java.util.ArrayList;
 import java.util.List;

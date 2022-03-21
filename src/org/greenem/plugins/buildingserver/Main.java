@@ -185,7 +185,7 @@ public class Main extends JavaPlugin implements Listener {
 				}
 			} else if(args[0].equals("save")) {
 				worldSave(sender, args);
-			} else if(args[0].equals("revertchanges")) {
+			} else if(args[0].equals("rollback")) {
 				revertLastChanges(sender, args);
 			} else if(args[0].equals("autosave")) {
 				worldAutosave(sender, args);
@@ -250,12 +250,14 @@ public class Main extends JavaPlugin implements Listener {
 			for (Player player : w.getPlayers()) {
 				locations.put(player, player.getLocation().clone());
 				player.teleport(Locs.mainWorldSpawn);
-				player.sendMessage(ChatColor.GRAY + "You will be teleported back after the server reversed the changes of that world after the last save. The operation was erquested by " + p.getName()); // what if he already logged out, npe lol
+				player.sendMessage(ChatColor.GRAY + "You will be teleported back after the server reversed the changes of that world after the last save. The operation was requested by " + p.getName()); // what if he already logged out, npe lol
 			}
 			Bukkit.unloadWorld(w, false); // do we need autosaves?
-			Bukkit.createWorld(new WorldCreator(wName));
+			World newW = Bukkit.createWorld(new WorldCreator(wName));
 			for (Player player : locations.keySet()) {
-				player.teleport(locations.get(player));
+				Location newLoc = locations.get(player);
+				newLoc.setWorld(newW);
+				player.teleport(newLoc);
 				player.sendMessage(ChatColor.GRAY + "You were be teleported back");
 			}
 		}
@@ -293,7 +295,6 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 	
-	@SuppressWarnings("unused")
 	public void unloadWorldCommand(CommandSender sender, String[] args) {
 		Player p = (Player) sender;
 		String worldName = null;
@@ -312,16 +313,22 @@ public class Main extends JavaPlugin implements Listener {
 			} else {
 				w = Bukkit.getWorld(worldName);
 			}
-			for (Player player : w.getPlayers()) {
-				player.teleport(Locs.mainWorldSpawn);
-				player.sendMessage(ChatColor.GRAY + "You were teleported to the main world because the world you were in was unloaded by " + p.getName());
+			if(ConfigData.worldsToBuildInArrayList.contains(worldName)) {
+				if(w==null) {
+					sender.sendMessage(ChatColor.RED + "That world is aldeady unloaded!");
+					return;
+				}
 			}
 			if(w==null) {
 				sender.sendMessage(ChatColor.RED + "The world doesn't exist!");
 				return;
 			}
+			for (Player player : w.getPlayers()) {
+				player.teleport(Locs.mainWorldSpawn);
+				player.sendMessage(ChatColor.GRAY + "You were teleported to the main world because the world you were in was unloaded by " + p.getName());
+			}
 			Bukkit.unloadWorld(w, true);
-			sender.sendMessage(ChatColor.GREEN + "You have been unloaded!");
+			sender.sendMessage(ChatColor.GREEN + "The world has been unloaded!");
 		}
 	}
 	

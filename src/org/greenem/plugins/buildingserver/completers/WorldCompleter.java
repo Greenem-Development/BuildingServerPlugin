@@ -23,9 +23,11 @@ public class WorldCompleter implements TabCompleter {
 			if(args.length==1) {
 				arguments.add("teleport");
 				arguments.add("save");
-				arguments.add("revertchanges");
+				arguments.add("rollback");
 				arguments.add("autosave");
 				arguments.add("unload");
+//				arguments.add("Х usage: <name from> <optional name to>"); //Л
+//				arguments.add("Л usage: or like that.  ак лучше?");
 				arguments = deleteNotMatching(arguments, args[currentLength]);
 				return arguments;
 			} else if(args.length==2) {
@@ -45,7 +47,7 @@ public class WorldCompleter implements TabCompleter {
 					arguments = deleteNotMatching(arguments, args[currentLength]);
 					return arguments;
 				}
-				else if(args[0].equals("unload") || args[0].equals("revertchanges") || args[0].equals("save")) {
+				else if(args[0].equals("unload") || args[0].equals("rollback") || args[0].equals("save")) {
 					arguments = getLoadedWorldsList();
 					arguments = deleteNotMatching(arguments, args[currentLength]);
 					return arguments;

@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -602,5 +603,10 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
 		e.getPlayer().teleport(Locs.mainWorldSpawn);
+	}
+	
+	@EventHandler
+	public void onRespawn(PlayerRespawnEvent e) {
+		e.setRespawnLocation(e.getPlayer().getWorld().getSpawnLocation()); // not tested
 	}
 }

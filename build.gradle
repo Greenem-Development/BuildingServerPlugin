@@ -17,5 +17,25 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot-api:1.18.1-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot-api:1.18.2-R0.1-SNAPSHOT'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'src'
+        }
+        resources {
+            srcDir 'resources' 
+        }
+    }
+}
+
+jar {
+	archiveBaseName = 'BuildingServerPlugin'
+    destinationDirectory.set(file("G:/SERVERS/Map Building Server/plugins"))
+    configurations.implementation.canBeResolved=true
+    from { configurations.implementation.collect {
+      it.isDirectory() ? it : zipTree(it) } 
+    }
 }
